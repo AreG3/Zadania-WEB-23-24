@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        #main {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin: 20px;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        function gen() {
+            const main = document.getElementById("main");
+
+            // Create numeric keys
+            for (let i = 9; i >= 0; i--) {
+                const key = document.createElement("button");
+                key.innerText = i;
+                key.onclick = show;
+                key.dataset.value = i;
+                main.appendChild(key);
+            }
+
+            // Create operator keys
+            const operators = ['+', '-', '*', '/'];
+            operators.forEach(operator => {
+                const key = document.createElement("button");
+                key.innerText = operator;
+                key.onclick = show;
+                key.dataset.value = operator;
+                main.appendChild(key);
+            });
+
+            // Create other keys
+            const equalsKey = document.createElement("button");
+            equalsKey.innerText = '=';
+            equalsKey.onclick = calculate;
+            main.appendChild(equalsKey);
+
+            const dotKey = document.createElement("button");
+            dotKey.innerText = '.';
+            dotKey.onclick = show;
+            dotKey.dataset.value = '.';
+            main.appendChild(dotKey);
+
+            const clearKey = document.createElement("button");
+            clearKey.innerText = 'C';
+            clearKey.onclick = clear;
+            main.appendChild(clearKey);
+
+            const clearAllKey = document.createElement("button");
+            clearAllKey.innerText = 'AC';
+            clearAllKey.onclick = clearAll;
+            main.appendChild(clearAllKey);
+
+            // Display
+            const display = document.createElement("div");
+            display.id = "display";
+            main.appendChild(display);
+
+            // History
+            const history = document.createElement("div");
+            history.id = "history";
+            document.body.appendChild(history);
+        }
+
+        function show() {
+            const display = document.getElementById("display");
+            display.innerText += this.dataset.value;
+        }
+
+        function calculate() {
+            const display = document.getElementById("display");
+            const history = document.getElementById("history");
+
+            try {
+                const result = eval(display.innerText);
+                history.innerText += `${display.innerText} = ${result}\n`;
+                display.innerText = result;
+            } catch (error) {
+                display.innerText = "Error";
+            }
+        }
+
+        function clear() {
+            const display = document.getElementById("display");
+            display.innerText = display.innerText.slice(0, -1);
+        }
+
+        function clearAll() {
+            const display = document.getElementById("display");
+            const history = document.getElementById("history");
+            display.innerText = "";
+            history.innerText = "";
+        }
+    </script>
+</head>
+<body onload="gen()">
+    <div id="main"></div>
+</body>
+</html>
