@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Timed Game</title>
+    <style>
+        #main {
+            width: 640px;
+            height: 480px;
+            margin: auto;
+            border: 1px solid black;
+        }
+    </style>
+    <script>
+        var canvas;
+        var ctx;
+        var pos_x = 320, pos_y = 300;
+        var welcome_screen = true;
+        var startTime;
+        var endTime;
+        var timerInterval;
+
+        function drawHero() {
+            ctx.save();
+            ctx.fillStyle = 'rgba(255, 0, 0, 1)';
+            ctx.translate(pos_x, pos_y);
+            ctx.fillRect(0, 0, 20, 30);
+            ctx.restore();
+        }
+
+        function redraw() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillRect(pos_x, pos_y, 20, 30);
+            drawHero();
+
+            if (canvasIsFullyColored()) {
+                clearInterval(timerInterval);
+                endTime = new Date();
+                displayWinningMessage();
+            }
+        }
+
+        function canvasIsFullyColored() {
+            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            for (var i = 0; i < imageData.data.length; i += 4) {
+                if (imageData.data[i + 3] !== 255) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function init() {
+            window.addEventListener("keydown", keyListener, false);
+            canvas = document.getElementById('game');
+            ctx = canvas.getContext('2d');
+            ctx.font = '48px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('READY PLAYER ONE?', 320, 240);
+            drawHero();
+        }
+
+        function keyListener(e) {
+            if (welcome_screen) {
+                ctx.clearRect(0, 0, 640, 480);
+                welcome_screen = false;
+                startTime = new Date();
+                timerInterval = setInterval(displayTimer, 1000);
+                window.setInterval(redraw, 10);
+            }
+
+            switch (e.keyCode) {
+                case 37: // left arrow
+                    pos_x -= 5;
+                    break;
+                case 38: // up arrow
+                    pos_y -= 5;
+                    break;
+                case 39: // right arrow
+                    pos_x += 5;
+                    break;
+                case 40: // down arrow
+                    pos_y += 5;
+                    break;
+            }
+        }
+
+        function displayTimer() {
+            var currentTime = new Date();
+            var elapsedTime = Math.floor((currentTime - startTime) / 1000);
+            document.getElementById('timer').innerText = 'Time: ' + elapsedTime + 's';
+        }
+
+        function displayWinningMessage() {
+            ctx.clearRect(0, 0, 640, 480);
+            ctx.fillText('Congratulations!', 320, 240);
+            ctx.fillText('You won!', 320, 300);
+            ctx.fillText(document.getElementById('timer').innerText, 320, 360);
+            var resetButton = document.createElement("button");
+            resetButton.innerText = 'Play Again';
+            resetButton.onclick = resetGame;
+            document.body.appendChild(resetButton);
+        }
+
+        function resetGame() {
+            pos_x = 320;
+            pos_y = 300;
+            welcome_screen = true;
+            clearInterval(timerInterval);
+            document.getElementById('timer').innerText = '';
+            ctx.clearRect(0, 0, 640, 480);
+            ctx.fillText('READY PLAYER ONE?', 320, 240);
+            drawHero();
+        }
+    </script>
+</head>
+<body onload="init()">
+    <div id="main">
+        <canvas id="game" width="640" height="480">
+            Please use a modern browser!
+        </canvas>
+        <div id="timer"></div>
+    </div>
+</body>
+</html>
